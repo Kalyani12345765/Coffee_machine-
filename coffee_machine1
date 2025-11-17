@@ -1,0 +1,104 @@
+MENU = {
+    "espresso": {
+        "ingredients": {
+            "water": 50,
+            "coffee": 18,
+        },
+        "cost": 1.5,
+    },
+    "latte": {
+        "ingredients": {
+            "water": 200,
+            "milk": 150,
+            "coffee": 24,
+        },
+        "cost": 2.5,
+    },
+    "cappuccino": {
+        "ingredients": {
+            "water": 250,
+            "milk": 100,
+            "coffee": 24,
+        },
+        "cost": 3.0,
+    }
+}
+resources = {
+    "water": 300,
+    "milk": 200,
+    "coffee": 100,
+}
+coffee_money_saved=0 # total coins saved inside the coffee machine
+coins_status= {"quarters": 0.25, "dimes": 0.10, "nickles": 0.05, "pennies": 0.01}
+def report_purchasing():
+    print(f"Water: {resources['water']} ml")
+    print(f"Milk: {resources['milk']} ml")
+    print(f"Coffee:{resources['coffee']} g")
+
+def sub_ingredients(user_wants):
+    resources["water"] -= MENU[user_wants]["ingredients"]["water"]
+    resources["coffee"] -= MENU[user_wants]["ingredients"]["coffee"]
+    if user_wants != "espresso":
+        resources["milk"] -= MENU[user_wants]["ingredients"]["milk"]
+    report_purchasing()
+
+def ingredient_checking(user_wants):
+    #if user_wants in MENU:
+    if resources["water"]>= MENU[user_wants]["ingredients"]["water"] and resources["coffee"]>= MENU[user_wants]["ingredients"]["coffee"]:
+        if user_wants != "espresso" and resources["milk"]>= MENU[user_wants]["ingredients"]["milk"]:
+            return True  #ingredients present
+        return True
+    elif resources["water"]< MENU[user_wants]["ingredients"]["water"] and resources["coffee"]< MENU[user_wants]["ingredients"]["coffee"]:
+        if user_wants!="espresso" and resources["milk"]<= MENU[user_wants]["ingredients"]["milk"]:
+            return False #no ingredients left
+        return False
+
+def coins_cal(cost, coffee_money_adding):
+    print("Please insert coins")
+    quarters = int(input("how many quarters?:"))
+    dimes = int(input("how many dimes?:"))
+    nickles = int(input("how many nickles?:"))
+    pennies = int(input("how many pennies?:"))
+    total_user_coins = coins_status["quarters"] * quarters + coins_status["dimes"] * dimes + coins_status[
+        "nickles"] * nickles + coins_status["pennies"] * pennies
+    print(total_user_coins)  # total coins are deposited by user
+    if total_user_coins>cost and total_user_coins!=cost:
+        print(f"Here, is ${round(total_user_coins-cost,2)} dollar in change.")
+        coffee_money_adding +=cost  
+        return coffee_money_adding # added money to the coffee_machine
+    elif total_user_coins==cost:
+        print("You have given perfect amount. Thank you!")
+        coffee_money_adding +=cost  
+        return coffee_money_adding # added money to the coffee_machine
+    else:
+        return 0
+
+def checking_user_input():
+    if user_input in MENU:
+        return True
+    else:
+        return False
+
+machine_working=True
+while machine_working:
+    user_input = input("What would you like? (espresso/ latte/ cappuccino):").strip().lower()  # input_wash
+    if user_input=="report":
+        report_purchasing()
+    elif user_input=="off":
+        machine_working=False
+    elif checking_user_input()==True:
+        final_decision= ingredient_checking(user_input)
+        if final_decision==True:
+            coins_check=(coins_cal(MENU[user_input]["cost"], coffee_money_saved)) #since I wrote, print--> the return value or string will get printed
+            coffee_money_saved=coins_check
+            if coins_check>0:
+                sub_ingredients(user_input)
+                print(f"Here is your {user_input}. Enjoy! Have a good day! :)")
+            elif coins_check==0:
+                print("Sorry that's not enough money. Money refunded")
+        else:
+            print("No more ingredients left!")
+        print(f"This much money present in the coffee_machine {coffee_money_saved}")
+    else:
+        print("Please, Re-choose the order!")
+        print(f"This much money present in the coffee_machine {coffee_money_saved}")
